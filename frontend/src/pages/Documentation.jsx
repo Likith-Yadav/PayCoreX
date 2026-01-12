@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { 
   BookOpenIcon, 
   KeyIcon, 
@@ -21,11 +21,6 @@ export default function Documentation() {
   const { user, loading } = useAuth()
   const [activeSection, setActiveSection] = useState('overview')
   const [activeSubSection, setActiveSubSection] = useState(null)
-
-  // If logged in, redirect to dashboard
-  if (!loading && user) {
-    return <Navigate to="/dashboard" replace />
-  }
 
   const sections = [
     {
@@ -1123,18 +1118,31 @@ const headers = {
                 <Link to="/" className="text-2xl font-bold text-primary-600">PayCoreX</Link>
               </div>
               <div className="flex items-center space-x-4">
-                <Link
-                  to="/login"
-                  className="text-gray-700 hover:text-gray-900 px-4 py-2 font-medium transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/signup"
-                  className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors"
-                >
-                  Get Started
-                </Link>
+                {loading ? (
+                  <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+                ) : user ? (
+                  <Link
+                    to="/dashboard"
+                    className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="text-gray-700 hover:text-gray-900 px-4 py-2 font-medium transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
