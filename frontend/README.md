@@ -2,49 +2,55 @@
 
 Professional payment gateway dashboard built with React and Tailwind CSS.
 
-## Features
+## 🚀 Quick Start
 
-- 🔐 User authentication (Sign up / Sign in)
-- 📊 Dashboard with statistics and analytics
-- 🔑 API key management with download option
-- 💳 Transaction history and filtering
-- 📈 Analytics and charts
-- 📚 Complete documentation
+### Local Development
 
-## Setup
-
-1. Install dependencies:
 ```bash
+# Install dependencies
 npm install
-```
 
-2. Set environment variables:
-```bash
-# Create .env file
-VITE_API_URL=https://api.buildforu.pw
-```
+# Set environment variable
+echo "VITE_API_URL=https://api.buildforu.pw" > .env
 
-3. Run development server:
-```bash
+# Run development server
 npm run dev
 ```
 
-4. Build for production:
+### Build for Production
+
 ```bash
 npm run build
 ```
 
-## Tech Stack
+The built files will be in the `dist` directory.
 
-- React 18
-- Vite
-- Tailwind CSS
-- React Router
-- Axios
-- Recharts
-- Heroicons
+## 📦 Tech Stack
 
-## Project Structure
+- **React 18** - UI library
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **React Router** - Routing
+- **Axios** - HTTP client
+- **Heroicons** - Icons
+
+## 🌐 Deployment
+
+### Deploy to Vercel
+
+1. Push code to GitHub
+2. Import project in Vercel
+3. Set root directory to `frontend`
+4. Add environment variable: `VITE_API_URL=https://api.buildforu.pw`
+5. Deploy!
+
+See `VERCEL_DEPLOYMENT.md` for detailed instructions.
+
+## ⚙️ Environment Variables
+
+- `VITE_API_URL` - Backend API URL (required)
+
+## 📁 Project Structure
 
 ```
 frontend/
@@ -58,3 +64,7 @@ frontend/
 └── package.json       # Dependencies
 ```
 
+## 🔗 Links
+
+- **Production API**: https://api.buildforu.pw
+- **Documentation**: https://api.buildforu.pw/docs

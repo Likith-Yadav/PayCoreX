@@ -133,7 +133,13 @@ REST_FRAMEWORK = {
     ),
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS Configuration
+CORS_ALLOW_ALL_ORIGINS = True  # Set to False in production and use CORS_ALLOWED_ORIGINS
+# CORS_ALLOWED_ORIGINS = [
+#     "https://your-frontend.vercel.app",
+#     "https://buildforu.pw",
+#     "https://www.buildforu.pw",
+# ]
 
 # JWT Settings
 from datetime import timedelta
