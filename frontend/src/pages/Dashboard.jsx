@@ -68,8 +68,8 @@ export default function Dashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back! Here's your payment overview.</p>
+        <h1 className="text-4xl font-bold text-black mb-2">Dashboard</h1>
+        <p className="text-gray-700 text-lg">Welcome back! Here's your payment overview.</p>
       </div>
 
       {/* Stats Grid */}
@@ -77,14 +77,14 @@ export default function Dashboard() {
         {statCards.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <div key={index} className="card">
+            <div key={index} className="card hover:shadow-lg transition-all duration-300">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm text-gray-600 mb-2 font-medium">{stat.title}</p>
+                  <p className="text-3xl font-bold text-black">{stat.value}</p>
                 </div>
-                <div className={`${stat.color} p-3 rounded-lg`}>
-                  <Icon className="h-6 w-6 text-white" />
+                <div className={`${stat.color} p-4 rounded-xl shadow-sm`}>
+                  <Icon className="h-7 w-7 text-white" />
                 </div>
               </div>
             </div>
