@@ -7,14 +7,13 @@ import {
   CodeBracketIcon,
   ServerIcon,
   DevicePhoneMobileIcon,
-  ArrowPathIcon,
+  ArrowLeftIcon,
   WalletIcon,
   BellIcon,
   ChartBarIcon,
   ShieldCheckIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/outline'
-import PublicLayout from '../components/PublicLayout'
 import { useAuth } from '../context/AuthContext'
 
 export default function Documentation() {
@@ -1108,47 +1107,57 @@ const headers = {
   }
 
   return (
-    <PublicLayout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Navigation Bar */}
-        <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <Link to="/" className="text-2xl font-bold text-primary-600">PayCoreX</Link>
-              </div>
-              <div className="flex items-center space-x-4">
-                {loading ? (
-                  <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-                ) : user ? (
-                  <Link
-                    to="/dashboard"
-                    className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors"
-                  >
-                    Dashboard
-                  </Link>
-                ) : (
-                  <>
-                    <Link
-                      to="/login"
-                      className="text-gray-700 hover:text-gray-900 px-4 py-2 font-medium transition-colors"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      to="/signup"
-                      className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors"
-                    >
-                      Get Started
-                    </Link>
-                  </>
-                )}
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation Bar */}
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <Link to="/" className="text-2xl font-bold text-primary-600">PayCoreX</Link>
+              <div className="flex items-center text-sm text-gray-500">
+                <BookOpenIcon className="h-4 w-4 mr-1" />
+                <span>Documentation</span>
               </div>
             </div>
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/"
+                className="inline-flex items-center text-gray-700 hover:text-gray-900 px-4 py-2 font-medium transition-colors"
+              >
+                <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                Back to Home
+              </Link>
+              {loading ? (
+                <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+              ) : user ? (
+                <Link
+                  to="/dashboard"
+                  className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-gray-700 hover:text-gray-900 px-4 py-2 font-medium transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
-        </nav>
+        </div>
+      </nav>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar Navigation */}
             <div className="lg:w-64 flex-shrink-0">
@@ -1207,6 +1216,6 @@ const headers = {
           </div>
         </div>
       </div>
-    </PublicLayout>
+    </div>
   )
 }
