@@ -260,7 +260,7 @@ Body: {
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-3">Get Payment Status</h3>
                   <div className="bg-gray-50 p-4 rounded-lg mb-2">
-                    <code className="text-sm font-mono">GET /v1/payments/{'{payment_id}'}</code>
+                    <code className="text-sm font-mono">GET /v1/payments/&#123;payment_id&#125;</code>
                   </div>
                   <p className="text-gray-700 mb-3">Retrieve payment details and status.</p>
                 </div>
@@ -404,7 +404,7 @@ payment = client.create_payment(
                 <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                   <pre className="text-sm text-gray-100">
 {`def get_payment(self, payment_id):
-    url = f"{self.base_url}/v1/payments/{payment_id}"
+    url = f"{self.base_url}/v1/payments/{'{'}payment_id{'}'}"
     body = ""
     
     response = requests.get(
@@ -844,7 +844,7 @@ const headers = {
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Endpoint</h3>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <code className="text-lg font-mono">GET /v1/payments/{'{payment_id}'}</code>
+                  <code className="text-lg font-mono">GET /v1/payments/&#123;payment_id&#125;</code>
                 </div>
               </div>
 
