@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
 from core.views import health_check
-import core.admin  # Import to apply admin customization
+
+# Customize Django admin site (after Django is initialized)
+admin.site.site_header = "PayCoreX Administration"
+admin.site.site_title = "PayCoreX Admin"
+admin.site.index_title = "Welcome to PayCoreX Administration"
 
 urlpatterns = [
     path('', health_check, name='health_check'),

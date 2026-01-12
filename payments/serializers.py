@@ -6,7 +6,7 @@ class PaymentCreateSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=20, decimal_places=2)
     currency = serializers.CharField(max_length=3, default='INR', required=False)
     method = serializers.ChoiceField(choices=Payment.METHOD_CHOICES)
-    user_id = serializers.UUIDField(required=False)
+    user_id = serializers.CharField(max_length=255, required=False, allow_blank=True, allow_null=True)
     reference_id = serializers.CharField(max_length=255, required=False)
     metadata = serializers.JSONField(required=False, default=dict)
 

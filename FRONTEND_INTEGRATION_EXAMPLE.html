@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Site - PayCoreX Integration</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Make a Donation</h1>
+    
+    <form id="donationForm">
+        <div class="form-group">
+            <label for="amount">Donation Amount (₹)</label>
+            <input type="number" id="amount" value="100" min="1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="paymentMethod">Payment Method</label>
+            <select id="paymentMethod" required>
+                <option value="">Loading...</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Message (Optional)</label>
+            <textarea id="message" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+        </div>
+        
+        <button type="submit" id="donateBtn">Donate Now</button>
+        <div id="messageDiv"></div>
+    </form>
+    
+    <script>
+        // ⚠️ SECURITY WARNING: In production, keep SECRET_KEY on backend!
+        // This is for demonstration only
+        const API_KEY = 'y5XQpcXhxzzGfk5ND3b3iU0Np7HaZWYw_Z4w2b42h64';
+        const SECRET_KEY = '-9iJc1OZXohB4gf3lanGob4M9ypMLFH4FeiyYCEPfKwNIa-dBjrs7Z_XiRqMD3paMgqCVYxH5k3oDDH1saikFQ';
+        const BASE_URL = 'https://api.buildforu.pw';
+        
+        // HMAC Signature Generation
+        async function generateHMACSignature(secret, timestamp, body) {
+            const payload = timestamp + body;
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(secret);
+            const messageData = encoder.encode(payload);
+            
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+            
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+            const hashArray = Array.from(new Uint8Array(signature));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        // Get available payment methods
+        async function getPaymentMethods() {
+            try {
+                const timestamp = Math.floor(Date.now() / 1000).toString();
+                const body = "";
+                const signature = await generateHMACSignature(SECRET_KEY, timestamp, body);
+                
+                const response = await fetch(`${BASE_URL}/v1/payments/methods`, {
+                    method: 'GET',
+                    headers: {
+                        'X-API-Key': API_KEY,
+                        'X-Signature': signature,
+                        'X-Timestamp': timestamp
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to get payment methods');
+                }
+                
+                const data = await response.json();
+                return data.available_methods || [];
+            } catch (error) {
+                console.error('Error getting payment methods:', error);
+                return [];
+            }
+        }
+        
+        // Create payment
+        async function createPayment(amount, method, userId, referenceId, metadata = {}) {
+            const timestamp = Math.floor(Date.now() / 1000).toString();
+            const body = JSON.stringify({
+                amount: parseFloat(amount),
+                method: method,
+                user_id: userId,
+                reference_id: referenceId,
+                metadata: metadata
+            });
+            
+            const signature = await generateHMACSignature(SECRET_KEY, timestamp, body);
+            
+            const response = await fetch(`${BASE_URL}/v1/payments/create`, {
+                method: 'POST',
+                headers: {
+                    'X-API-Key': API_KEY,
+                    'X-Signature': signature,
+                    'X-Timestamp': timestamp,
+                    'Content-Type': 'application/json'
+                },
+                body: body
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                return data;
+            } else {
+                throw new Error(data.error || 'Payment creation failed');
+            }
+        }
+        
+        // Load payment methods on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            const methods = await getPaymentMethods();
+            const select = document.getElementById('paymentMethod');
+            
+            if (methods.length === 0) {
+                select.innerHTML = '<option value="">No payment methods available</option>';
+                document.getElementById('donateBtn').disabled = true;
+                return;
+            }
+            
+            select.innerHTML = '';
+            methods.forEach(method => {
+                const option = document.createElement('option');
+                option.value = method.method;
+                option.textContent = method.display_name;
+                select.appendChild(option);
+            });
+        });
+        
+        // Handle form submission
+        document.getElementById('donationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const amount = document.getElementById('amount').value;
+            const method = document.getElementById('paymentMethod').value;
+            const message = document.getElementById('message').value;
+            const userId = 'user-' + Date.now();
+            const referenceId = 'donation-' + Date.now();
+            
+            const btn = document.getElementById('donateBtn');
+            const msgDiv = document.getElementById('messageDiv');
+            
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            msgDiv.innerHTML = '';
+            
+            try {
+                const payment = await createPayment(amount, method, userId, referenceId, {
+                    message: message
+                });
+                
+                // Redirect to payment page
+                const paymentPageUrl = `${BASE_URL}${payment.payment_page_url || `/v1/payments/${payment.id}/page`}`;
+                window.location.href = paymentPageUrl;
+                
+            } catch (error) {
+                msgDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                btn.disabled = false;
+                btn.textContent = 'Donate Now';
+            }
+        });
+    </script>
+</body>
+</html>
+

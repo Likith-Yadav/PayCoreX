@@ -42,6 +42,8 @@ export const dashboardAPI = {
   getStats: () => api.get('/api/dashboard/stats'),
   getPayments: (params) => api.get('/api/dashboard/payments', { params }),
   getLedgers: (params) => api.get('/api/dashboard/ledgers', { params }),
+  getPendingVerifications: () => api.get('/api/dashboard/verifications'),
+  verifyPayment: (paymentId, data) => api.post(`/api/dashboard/verifications/${paymentId}/verify`, data),
 }
 
 export default api

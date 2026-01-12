@@ -41,7 +41,14 @@ class PaymentOrchestrator:
             else:
                 raise ValidationError(f"Unsupported payment method: {payment.method}")
 
-            if result['success']:
+            # Handle UPI payments differently - they start as pending
+            if payment.method == 'upi_intent' and result.get('pending'):
+                # UPI payments remain in 'pending' status until confirmed
+                payment.status = 'pending'
+                payment.provider_reference = result.get('reference')
+                payment.save()
+                # Don't update ledger or send webhook yet - wait for confirmation
+            elif result['success']:
                 payment.status = 'success'
                 payment.provider_reference = result.get('reference')
                 payment.save()
@@ -104,11 +111,24 @@ class PaymentOrchestrator:
 
     @staticmethod
     def _process_upi_payment(payment):
+        # UPI payments are handled externally - we just return pending status
+        # Payment will be confirmed later via webhook or manual verification
+        from merchants.models import MerchantPaymentConfig
+        
+        # Try to get UPI ID from merchant config if not in metadata
         upi_id = payment.metadata.get('upi_id')
         if not upi_id:
-            return {'success': False, 'error': 'upi_id required in metadata'}
+            config = MerchantPaymentConfig.objects.filter(
+                merchant_id=payment.merchant_id,
+                config_type='upi',
+                is_verified=True,
+                is_active=True
+            ).first()
+            if config:
+                upi_id = config.upi_id
         
-        return {'success': True, 'reference': f'UPI_{payment.id}'}
+        # Return pending status - payment will be verified later
+        return {'pending': True, 'reference': f'UPI_{payment.id}'}
 
     @staticmethod
     def _process_crypto_payment(payment):

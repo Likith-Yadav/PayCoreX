@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayCoreX - Payment</title>
+    <script>
+        // Payment page variables (QR code is generated server-side)
+        const paymentId = '{{ payment.id }}';
+        const paymentStatus = '{{ payment.status }}';
+        const upiId = '{{ merchant_config.upi_id|default:"" }}';
+        const amount = {{ payment.amount }};
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .payment-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+        .payment-header {
+            margin-bottom: 30px;
+        }
+        .payment-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .payment-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        .amount-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        .amount-display .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .amount-display .value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        .qr-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+        .upi-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            color: #1976d2;
+        }
+        .upi-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .upi-id {
+            font-size: 18px;
+            font-weight: bold;
+            word-break: break-all;
+        }
+        .payment-buttons {
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.4);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        .status-success {
+            background: #4caf50;
+            color: white;
+        }
+        .status-pending {
+            background: #ff9800;
+            color: white;
+        }
+        .status-failed {
+            background: #f44336;
+            color: white;
+        }
+        .status-processing {
+            background: #2196f3;
+            color: white;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .payment-id {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <h1>Complete Payment</h1>
+            <p>Scan the QR code or use UPI app</p>
+        </div>
+        
+        <div class="amount-display">
+            <div class="label">Amount to Pay</div>
+            <div class="value">₹{{ payment.amount }}</div>
+        </div>
+        
+        {% if payment.method == 'upi_intent' and merchant_config %}
+        <div class="upi-info">
+            <strong>Pay to UPI ID:</strong>
+            <div class="upi-id">{{ merchant_config.upi_id }}</div>
+        </div>
+        
+        <div class="qr-container">
+            {% if qr_code_data_uri %}
+                <img src="{{ qr_code_data_uri }}" alt="UPI QR Code" style="max-width: 300px; width: 100%; height: auto; display: block; margin: 0 auto;">
+            {% else %}
+                <div id="qrcode">
+                    <p style="color: red; padding: 20px;">QR code unavailable. Please use the "Open in UPI App" button.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="payment-buttons">
+            <a href="upi://pay?pa={{ merchant_config.upi_id }}&pn=PayCoreX&am={{ payment.amount }}&cu=INR" class="btn btn-primary" id="upi-app-btn">
+                Open in UPI App
+            </a>
+            <button onclick="checkPaymentStatus()" class="btn btn-secondary">
+                Check Status
+            </button>
+            {% if payment.status == 'pending' %}
+            <div id="utr-section" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; display: none;">
+                <h3 style="font-size: 18px; margin-bottom: 15px; color: #333;">Enter UTR Number</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                    After completing payment, enter the UTR (Unique Transaction Reference) number from your UPI app to verify payment.
+                </p>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input 
+                        type="text" 
+                        id="utr-input" 
+                        placeholder="Enter UTR number (e.g., 123456789012)" 
+                        style="flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;"
+                        maxlength="50"
+                    >
+                    <button onclick="verifyUTR()" class="btn btn-success" style="padding: 12px 20px;">
+                        Verify UTR
+                    </button>
+                </div>
+                <p style="font-size: 12px; color: #999; margin-top: 10px;">
+                    💡 UTR number is shown in your UPI app after successful payment
+                </p>
+            </div>
+            <button onclick="showUTRInput()" class="btn btn-success" style="background: #4caf50; color: white; margin-top: 10px; display: block; width: 100%;" id="show-utr-btn">
+                ✅ I've Already Paid - Enter UTR
+            </button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="upi-info">
+            <p>Payment method: {{ payment.get_method_display }}</p>
+            <p>Status: <span class="status-badge status-{{ payment.status }}">{{ payment.get_status_display }}</span></p>
+        </div>
+        {% endif %}
+        
+        <div class="payment-id">
+            Payment ID: {{ payment.id }}
+        </div>
+        
+        <div id="status-message" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        // Payment status checking functionality
+        // Note: paymentId, paymentStatus are already defined in the head script
+        
+        // Store interval ID to prevent multiple intervals
+        let statusCheckInterval = null;
+        let aggressiveCheckInterval = null;
+        let lastCheckTime = Date.now();
+        let userLeftPage = false;
+        let returnCheckCount = 0;
+        
+        // Prevent page from creating new payments on refresh
+        // Store payment ID in sessionStorage to ensure same payment is shown
+        if (typeof(Storage) !== "undefined") {
+            const currentUrl = window.location.href;
+            const storedUrl = sessionStorage.getItem('payment_page_url');
+            
+            // If URL changed (different payment), update stored URL
+            if (storedUrl !== currentUrl) {
+                sessionStorage.setItem('payment_page_url', currentUrl);
+                sessionStorage.setItem('payment_id', paymentId);
+            }
+            
+            // Ensure we're showing the correct payment
+            const storedPaymentId = sessionStorage.getItem('payment_id');
+            if (storedPaymentId && storedPaymentId !== paymentId) {
+                console.warn('Payment ID mismatch. Expected:', storedPaymentId, 'Got:', paymentId);
+            }
+        }
+        
+        // Detect when user leaves page (opens UPI app)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // User left the page - likely opened UPI app
+                userLeftPage = true;
+                console.log('User left page - may have opened UPI app');
+            } else {
+                // User returned to page - check if they completed payment
+                if (userLeftPage && (paymentStatus === 'pending' || paymentStatus === 'processing')) {
+                    console.log('User returned - checking payment status aggressively');
+                    returnCheckCount = 0;
+                    startAggressiveChecking();
+                }
+            }
+        });
+        
+        // Detect window focus (user returned from another app)
+        window.addEventListener('focus', function() {
+            if (userLeftPage && (paymentStatus === 'pending' || paymentStatus === 'processing')) {
+                console.log('Window focused - user may have returned from UPI app');
+                returnCheckCount = 0;
+                startAggressiveChecking();
+            }
+        });
+        
+        // Detect when user clicks "Open in UPI App" button
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-primary') && e.target.closest('a[href^="upi://"]')) {
+                console.log('User clicked UPI app button - will check aggressively on return');
+                userLeftPage = true;
+                // Start aggressive checking after 10 seconds (give time for payment)
+                setTimeout(function() {
+                    if (paymentStatus === 'pending' || paymentStatus === 'processing') {
+                        startAggressiveChecking();
+                    }
+                }, 10000);
+            }
+        });
+        
+        // Aggressive status checking when user returns
+        function startAggressiveChecking() {
+            // Stop normal checking
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+            
+            // Check immediately
+            checkPaymentStatus();
+            
+            // Check every 2 seconds for first 30 seconds (15 checks)
+            if (aggressiveCheckInterval) {
+                clearInterval(aggressiveCheckInterval);
+            }
+            
+            aggressiveCheckInterval = setInterval(function() {
+                returnCheckCount++;
+                checkPaymentStatus();
+                
+                // After 15 checks (30 seconds), switch to normal checking
+                if (returnCheckCount >= 15) {
+                    clearInterval(aggressiveCheckInterval);
+                    aggressiveCheckInterval = null;
+                    returnCheckCount = 0;
+                    
+                    // Resume normal checking every 5 seconds
+                    if (!statusCheckInterval && (paymentStatus === 'pending' || paymentStatus === 'processing')) {
+                        statusCheckInterval = setInterval(checkPaymentStatus, 5000);
+                    }
+                }
+            }, 2000);
+        }
+        
+        // Auto-check payment status if pending
+        if (paymentStatus === 'pending' || paymentStatus === 'processing') {
+            // Show initial status
+            updateStatusDisplay(paymentStatus);
+            // Start checking after 3 seconds
+            setTimeout(checkPaymentStatus, 3000);
+            // Check every 5 seconds (only if not already checking)
+            if (!statusCheckInterval) {
+                statusCheckInterval = setInterval(checkPaymentStatus, 5000);
+            }
+        } else {
+            // Show current status if not pending
+            updateStatusDisplay(paymentStatus);
+        }
+        
+        function updateStatusDisplay(status) {
+            const statusMessage = document.getElementById('status-message');
+            if (!statusMessage) return;
+            
+            if (status === 'success') {
+                statusMessage.innerHTML = '<div class="status-badge status-success">✅ Payment Successful!</div>';
+            } else if (status === 'failed') {
+                statusMessage.innerHTML = '<div class="status-badge status-failed">❌ Payment Failed</div>';
+            } else if (status === 'pending') {
+                statusMessage.innerHTML = '<div class="status-badge status-pending">⏳ Waiting for payment...</div>';
+            } else if (status === 'processing') {
+                statusMessage.innerHTML = '<div class="status-badge status-processing">🔄 Processing payment...</div>';
+            } else {
+                statusMessage.innerHTML = `<div class="status-badge status-${status}">Status: ${status}</div>`;
+            }
+        }
+        
+        function checkPaymentStatus() {
+            const statusMessage = document.getElementById('status-message');
+            if (!statusMessage) return;
+            
+            // Don't show loading if already showing a message (to avoid flickering)
+            if (!statusMessage.innerHTML.includes('Checking')) {
+                statusMessage.innerHTML = '<div class="loading"></div> Checking payment status...';
+            }
+            
+            fetch(`/v1/payments/${paymentId}`)
+                .then(response => response.json())
+                .then(data => {
+                    lastCheckTime = Date.now();
+                    
+                    // Update payment status if it changed
+                    if (data.status !== paymentStatus) {
+                        paymentStatus = data.status;
+                        console.log('Payment status updated:', paymentStatus);
+                    }
+                    
+                    updateStatusDisplay(data.status);
+                    
+                    if (data.status === 'success') {
+                        // Stop all checking once payment is successful
+                        if (statusCheckInterval) {
+                            clearInterval(statusCheckInterval);
+                            statusCheckInterval = null;
+                        }
+                        if (aggressiveCheckInterval) {
+                            clearInterval(aggressiveCheckInterval);
+                            aggressiveCheckInterval = null;
+                        }
+                        
+                        setTimeout(() => {
+                            if (window.opener) {
+                                window.opener.postMessage({type: 'payment_success', paymentId: paymentId}, '*');
+                                window.close();
+                            } else {
+                                // Show success message
+                                statusMessage.innerHTML = '<div class="status-badge status-success">✅ Payment Successful! You can close this page.</div>';
+                                // Hide "I've Paid" button if it exists
+                                const paidBtn = document.querySelector('.btn-success');
+                                if (paidBtn) paidBtn.style.display = 'none';
+                            }
+                        }, 2000);
+                    } else if (data.status === 'failed') {
+                        // Stop checking if payment failed
+                        if (statusCheckInterval) {
+                            clearInterval(statusCheckInterval);
+                            statusCheckInterval = null;
+                        }
+                        if (aggressiveCheckInterval) {
+                            clearInterval(aggressiveCheckInterval);
+                            aggressiveCheckInterval = null;
+                        }
+                        statusMessage.innerHTML = `<div class="status-badge status-failed">❌ Payment Failed: ${data.failure_reason || 'Payment was not completed'}</div>`;
+                    }
+                    // Continue checking if still pending/processing
+                })
+                .catch(error => {
+                    console.error('Error checking status:', error);
+                    statusMessage.innerHTML = '<p style="color: red;">Error checking payment status. Please try again.</p>';
+                });
+        }
+        
+        // Function to show UTR input section
+        function showUTRInput() {
+            const utrSection = document.getElementById('utr-section');
+            const showBtn = document.getElementById('show-utr-btn');
+            if (utrSection) {
+                utrSection.style.display = 'block';
+                if (showBtn) showBtn.style.display = 'none';
+                // Focus on input
+                const utrInput = document.getElementById('utr-input');
+                if (utrInput) {
+                    setTimeout(() => utrInput.focus(), 100);
+                }
+            }
+        }
+        
+        // Function to verify UTR number
+        function verifyUTR() {
+            const utrInput = document.getElementById('utr-input');
+            const statusMessage = document.getElementById('status-message');
+            
+            if (!utrInput || !statusMessage) return;
+            
+            const utrNumber = utrInput.value.trim();
+            
+            if (!utrNumber) {
+                alert('Please enter UTR number');
+                utrInput.focus();
+                return;
+            }
+            
+            // Validate UTR format (typically 12 digits, but can vary)
+            if (utrNumber.length < 8 || utrNumber.length > 50) {
+                alert('UTR number should be between 8-50 characters');
+                utrInput.focus();
+                return;
+            }
+            
+            statusMessage.innerHTML = '<div class="loading"></div> Verifying UTR number...';
+            
+            // Submit UTR for verification
+            fetch(`/v1/payments/${paymentId}/verify-utr`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    utr_number: utrNumber
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.verified) {
+                    // Payment verified!
+                    statusMessage.innerHTML = '<div class="status-badge status-success">✅ Payment Verified! UTR matched successfully.</div>';
+                    paymentStatus = 'success';
+                    updateStatusDisplay('success');
+                    
+                    // Hide UTR section
+                    const utrSection = document.getElementById('utr-section');
+                    if (utrSection) utrSection.style.display = 'none';
+                    
+                    // Stop all checking
+                    if (statusCheckInterval) {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                    }
+                    if (aggressiveCheckInterval) {
+                        clearInterval(aggressiveCheckInterval);
+                        aggressiveCheckInterval = null;
+                    }
+                    
+                    // Refresh page after 2 seconds to show updated status
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    // UTR verification failed or pending
+                    if (data.status === 'pending_merchant_verification') {
+                        statusMessage.innerHTML = `
+                            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                                <p style="color: #856404; margin: 0;">
+                                    <strong>UTR Submitted</strong><br>
+                                    Your UTR number has been recorded. The merchant will verify it shortly.<br>
+                                    Status will update automatically once verified.
+                                </p>
+                            </div>
+                        `;
+                        // Continue checking more frequently
+                        if (!aggressiveCheckInterval) {
+                            startAggressiveChecking();
+                        }
+                    } else {
+                        statusMessage.innerHTML = `<div class="status-badge status-failed">❌ ${data.message || 'UTR verification failed. Please check the UTR number and try again.'}</div>`;
+                        utrInput.focus();
+                        utrInput.select();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying UTR:', error);
+                statusMessage.innerHTML = '<p style="color: red;">Error verifying UTR. Please try again or contact support.</p>';
+            });
+        }
+        
+        // Allow Enter key to submit UTR
+        document.addEventListener('DOMContentLoaded', function() {
+            const utrInput = document.getElementById('utr-input');
+            if (utrInput) {
+                utrInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        verifyUTR();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

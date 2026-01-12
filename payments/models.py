@@ -26,7 +26,7 @@ class Payment(models.Model):
     currency = models.CharField(max_length=3, default='INR')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     method = models.CharField(max_length=20, choices=METHOD_CHOICES)
-    user_id = models.UUIDField(null=True, blank=True)
+    user_id = models.CharField(max_length=255, null=True, blank=True, db_index=True)
     reference_id = models.CharField(max_length=255, null=True, blank=True, unique=True)
     provider_reference = models.CharField(max_length=255, null=True, blank=True)
     metadata = models.JSONField(default=dict, blank=True)

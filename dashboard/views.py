@@ -1,10 +1,13 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import status
 from django.db.models import Sum, Count, Q
 from django.utils import timezone
 from datetime import timedelta
 from payments.models import Payment, Refund
+from payments.serializers import PaymentResponseSerializer
+from payments.verification import PaymentVerificationService
 from ledger.models import Ledger
 from merchants.models import MerchantPaymentConfig
 from merchants.serializers import MerchantPaymentConfigSerializer
@@ -228,3 +231,81 @@ def payment_config_detail(request, config_id):
     elif request.method == 'DELETE':
         config.delete()
         return Response({'message': 'Payment configuration deleted'}, status=200)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def pending_verifications(request):
+    """Get pending payments that need verification (with UTR numbers)"""
+    merchant = request.user.merchant
+    if not merchant:
+        return Response({'error': 'No merchant account'}, status=400)
+    
+    # Get pending payments with UTR numbers
+    pending_payments = Payment.objects.filter(
+        merchant_id=merchant.id,
+        status='pending'
+    ).order_by('-created_at')
+    
+    # Filter only payments with UTR numbers
+    payments_with_utr = []
+    for payment in pending_payments:
+        utr_number = payment.metadata.get('utr_number')
+        if utr_number:
+            payments_with_utr.append({
+                'id': str(payment.id),
+                'amount': float(payment.amount),
+                'currency': payment.currency,
+                'method': payment.method,
+                'user_id': str(payment.user_id) if payment.user_id else None,
+                'reference_id': payment.reference_id,
+                'utr_number': utr_number,
+                'utr_submitted_at': payment.metadata.get('utr_submitted_at'),
+                'created_at': payment.created_at.isoformat(),
+                'updated_at': payment.updated_at.isoformat(),
+            })
+    
+    return Response({
+        'total': len(payments_with_utr),
+        'results': payments_with_utr
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_payment(request, payment_id):
+    """Verify a payment manually (merchant verifies UTR matches bank account)"""
+    merchant = request.user.merchant
+    if not merchant:
+        return Response({'error': 'No merchant account'}, status=400)
+    
+    try:
+        payment = Payment.objects.get(id=payment_id, merchant_id=merchant.id)
+    except Payment.DoesNotExist:
+        return Response({'error': 'Payment not found'}, status=404)
+    
+    if payment.status != 'pending':
+        return Response(
+            {'error': f'Payment is already {payment.status}. Cannot verify.'},
+            status=400
+        )
+    
+    # Get UTR from request or payment metadata
+    utr_number = request.data.get('utr_number') or payment.metadata.get('utr_number')
+    if not utr_number:
+        return Response({'error': 'UTR number is required'}, status=400)
+    
+    # Verify payment using UTR
+    try:
+        verified_payment = PaymentVerificationService.mark_payment_verified(
+            payment_id,
+            transaction_id=utr_number,
+            verified_by=request.user
+        )
+        
+        return Response(
+            PaymentResponseSerializer(verified_payment).data,
+            status=status.HTTP_200_OK
+        )
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)

@@ -13,7 +13,11 @@ class MerchantAdmin(admin.ModelAdmin):
 
 @admin.register(MerchantPaymentConfig)
 class MerchantPaymentConfigAdmin(admin.ModelAdmin):
-    list_display = ['merchant', 'config_type', 'is_primary', 'is_verified', 'verified_by', 'verified_at', 'created_at']
+    list_display = ['merchant', 'config_type', 'is_primary', 'is_verified', 'get_verified_by', 'verified_at', 'created_at']
+    
+    def get_verified_by(self, obj):
+        return obj.verified_by.username if obj.verified_by else '-'
+    get_verified_by.short_description = 'Verified By'
     list_filter = ['config_type', 'is_verified', 'is_primary', 'is_active', 'created_at']
     search_fields = ['merchant__name', 'merchant__email', 'upi_id', 'account_number', 'bank_name']
     readonly_fields = ['id', 'created_at', 'updated_at', 'verified_at', 'verified_by']

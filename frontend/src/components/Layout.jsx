@@ -8,6 +8,7 @@ import {
   ArrowRightOnRectangleIcon,
   BookOpenIcon,
   CreditCardIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline'
 
 export default function Layout({ children }) {
@@ -25,6 +26,7 @@ export default function Layout({ children }) {
     { path: '/api-keys', label: 'API Keys', icon: KeyIcon },
     { path: '/payment-settings', label: 'Payment Settings', icon: CreditCardIcon },
     { path: '/transactions', label: 'Transactions', icon: DocumentTextIcon },
+    { path: '/verifications', label: 'Verifications', icon: CheckCircleIcon },
     { path: '/analytics', label: 'Analytics', icon: ChartBarIcon },
     { path: '/docs', label: 'Documentation', icon: BookOpenIcon },
   ]

@@ -72,6 +72,16 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/verifications"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <PaymentVerifications />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/analytics"
         element={
           <ProtectedRoute>
