@@ -143,14 +143,14 @@ The UTR (Unique Transaction Reference) verification system allows users to submi
 
 ### Test UTR Submission
 ```bash
-curl -X POST https://api.buildforu.pw/v1/payments/{payment_id}/verify-utr \
+curl -X POST https://api.paycorex.dev/v1/payments/{payment_id}/verify-utr \
   -H "Content-Type: application/json" \
   -d '{"utr_number": "123456789012"}'
 ```
 
 ### Test Merchant Verification
 ```bash
-curl -X POST https://api.buildforu.pw/v1/payments/{payment_id}/verify \
+curl -X POST https://api.paycorex.dev/v1/payments/{payment_id}/verify \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "X-Signature: YOUR_SIGNATURE" \
   -H "X-Timestamp: TIMESTAMP" \

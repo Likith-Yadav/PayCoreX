@@ -11,7 +11,7 @@ Professional payment gateway dashboard built with React and Tailwind CSS.
 npm install
 
 # Set environment variable
-echo "VITE_API_URL=https://api.buildforu.pw" > .env
+echo "VITE_API_URL=https://api.paycorex.dev" > .env
 
 # Run development server
 npm run dev
@@ -41,7 +41,7 @@ The built files will be in the `dist` directory.
 1. Push code to GitHub
 2. Import project in Vercel
 3. Set root directory to `frontend`
-4. Add environment variable: `VITE_API_URL=https://api.buildforu.pw`
+4. Add environment variable: `VITE_API_URL=https://api.paycorex.dev`
 5. Deploy!
 
 See `VERCEL_DEPLOYMENT.md` for detailed instructions.
@@ -66,5 +66,5 @@ frontend/
 
 ## 🔗 Links
 
-- **Production API**: https://api.buildforu.pw
-- **Documentation**: https://api.buildforu.pw/docs
+- **Production API**: https://api.paycorex.dev
+- **Documentation**: https://api.paycorex.dev/docs

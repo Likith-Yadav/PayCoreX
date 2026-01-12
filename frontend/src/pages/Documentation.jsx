@@ -112,7 +112,7 @@ export default function Documentation() {
             <div className="bg-gray-50 p-6 rounded-xl">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Base URL</h2>
               <code className="block p-4 bg-white rounded-lg text-lg font-mono text-gray-800 border-2 border-gray-200">
-                https://api.buildforu.pw
+                https://api.paycorex.dev
               </code>
             </div>
 
@@ -342,7 +342,7 @@ import json
 import requests
 
 class PayCoreXClient:
-    def __init__(self, api_key, secret, base_url="https://api.buildforu.pw"):
+    def __init__(self, api_key, secret, base_url="https://api.paycorex.dev"):
         self.api_key = api_key
         self.secret = secret
         self.base_url = base_url
@@ -464,7 +464,7 @@ yarn add axios`}
 const axios = require('axios');
 
 class PayCoreXClient {
-    constructor(apiKey, secret, baseUrl = 'https://api.buildforu.pw') {
+    constructor(apiKey, secret, baseUrl = 'https://api.paycorex.dev') {
         this.apiKey = apiKey;
         this.secret = secret;
         this.baseUrl = baseUrl;
@@ -562,7 +562,7 @@ public class PayCoreXClient {
     public PayCoreXClient(String apiKey, String secret) {
         this.apiKey = apiKey;
         this.secret = secret;
-        this.baseUrl = "https://api.buildforu.pw";
+        this.baseUrl = "https://api.paycorex.dev";
     }
     
     private String generateSignature(long timestamp, String body) {
@@ -619,7 +619,7 @@ class PayCoreXClient {
     public function __construct($apiKey, $secret) {
         $this->apiKey = $apiKey;
         $this->secret = $secret;
-        $this->baseUrl = 'https://api.buildforu.pw';
+        $this->baseUrl = 'https://api.paycorex.dev';
         $this->client = new Client();
     }
     
@@ -650,34 +650,354 @@ class PayCoreXClient {
       case 'authentication':
         if (activeSubSection === 'hmac-signature' || !activeSubSection) {
           return (
-            <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-gray-900">HMAC Signature Authentication</h2>
-              
-              <p className="text-lg text-gray-700">
-                All API requests (except merchant registration) require HMAC-SHA256 signature authentication 
-                to ensure secure communication between your server and PayCoreX.
-              </p>
-
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <p className="text-blue-800">
-                  <strong>Formula:</strong> <code>HMAC-SHA256(secret, timestamp + request_body)</code>
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">HMAC Signature Authentication</h2>
+                <p className="text-lg text-gray-700 mb-6">
+                  PayCoreX uses HMAC-SHA256 (Hash-based Message Authentication Code) to secure all API communications. 
+                  This cryptographic method ensures that requests are authentic, haven't been tampered with, and come from 
+                  an authorized source.
                 </p>
               </div>
 
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-6 rounded-lg">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">How HMAC Authentication Works</h3>
+                <p className="text-gray-700 mb-4">
+                  HMAC authentication creates a unique signature for each request by combining:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
+                  <li>Your secret key (known only to you and PayCoreX)</li>
+                  <li>The request timestamp (prevents replay attacks)</li>
+                  <li>The request body (ensures data integrity)</li>
+                </ul>
+                <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                  <p className="text-blue-900 font-semibold mb-2">Signature Formula:</p>
+                  <code className="text-lg font-mono text-blue-800">HMAC-SHA256(secret_key, timestamp + request_body)</code>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-green-900 mb-3">✅ Benefits</h3>
+                  <ul className="space-y-2 text-sm text-green-800">
+                    <li>• Request authenticity verification</li>
+                    <li>• Data integrity protection</li>
+                    <li>• Replay attack prevention</li>
+                    <li>• No password transmission</li>
+                    <li>• Industry-standard security</li>
+                  </ul>
+                </div>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-red-900 mb-3">⚠️ Security Requirements</h3>
+                  <ul className="space-y-2 text-sm text-red-800">
+                    <li>• Never expose secret key in client code</li>
+                    <li>• Always generate signatures server-side</li>
+                    <li>• Use HTTPS for all requests</li>
+                    <li>• Store secret key securely</li>
+                    <li>• Rotate keys periodically</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Step-by-Step Signature Generation</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">1</div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Get Current Timestamp</h4>
+                      <p className="text-gray-600 text-sm">Get Unix timestamp in seconds (not milliseconds)</p>
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded mt-1 inline-block">timestamp = "1705060800"</code>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">2</div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Prepare Request Body</h4>
+                      <p className="text-gray-600 text-sm">Convert request body to JSON string (exact format matters)</p>
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded mt-1 inline-block">body = {'{\"amount\":1000,\"method\":\"wallet\"}'}</code>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">3</div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Create Payload</h4>
+                      <p className="text-gray-600 text-sm">Concatenate timestamp and body (in this exact order)</p>
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded mt-1 inline-block">payload = timestamp + body</code>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">4</div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Generate Signature</h4>
+                      <p className="text-gray-600 text-sm">Use HMAC-SHA256 with your secret key to sign the payload</p>
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded mt-1 inline-block">signature = HMAC-SHA256(secret, payload)</code>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-blue-100 text-blue-800 font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">5</div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1">Add Headers</h4>
+                      <p className="text-gray-600 text-sm">Include X-API-Key, X-Signature, and X-Timestamp in your request</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-900 p-6 rounded-xl">
+                <h3 className="text-lg font-semibold text-white mb-4">Complete Example</h3>
+                <pre className="text-sm text-gray-100 overflow-x-auto">
+{`// Python Example
+import hmac
+import hashlib
+import time
+import json
+
+# Your credentials
+api_key = "your-api-key"
+secret = "your-secret-key"
+
+# Step 1: Get timestamp
+timestamp = str(int(time.time()))  # "1705060800"
+
+# Step 2: Prepare body
+body = json.dumps({
+    "amount": 1000.00,
+    "method": "wallet",
+    "user_id": "user-123"
+})  # '{"amount":1000.0,"method":"wallet","user_id":"user-123"}'
+
+# Step 3: Create payload
+payload = f"{timestamp}{body}"  # "1705060800{\"amount\":1000.0,...}"
+
+# Step 4: Generate signature
+signature = hmac.new(
+    secret.encode(),
+    payload.encode(),
+    hashlib.sha256
+).hexdigest()  # "a1b2c3d4e5f6..."
+
+# Step 5: Add headers
+headers = {
+    "X-API-Key": api_key,
+    "X-Signature": signature,
+    "X-Timestamp": timestamp,
+    "Content-Type": "application/json"
+}`}
+                </pre>
+              </div>
+
+              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-yellow-900 mb-3">⚠️ Critical Notes</h3>
+                <ul className="space-y-2 text-yellow-800">
+                  <li><strong>Order matters:</strong> Payload must be <code className="bg-yellow-100 px-1 rounded">timestamp + body</code>, not <code className="bg-yellow-100 px-1 rounded">body + timestamp</code></li>
+                  <li><strong>Body format:</strong> Use exact JSON string as it will be sent (no extra spaces, same key order)</li>
+                  <li><strong>Empty body:</strong> For GET requests or empty POST, use empty string <code className="bg-yellow-100 px-1 rounded">""</code></li>
+                  <li><strong>Encoding:</strong> All strings must be UTF-8 encoded before hashing</li>
+                  <li><strong>Case sensitive:</strong> Header names are case-insensitive, but values are case-sensitive</li>
+                </ul>
+              </div>
+            </div>
+          )
+        }
+        if (activeSubSection === 'headers') {
+          return (
+            <div className="space-y-8">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Required Headers</h3>
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Authentication Headers</h2>
+                <p className="text-lg text-gray-700 mb-6">
+                  Every authenticated API request to PayCoreX requires three HTTP headers. These headers work together 
+                  to verify your identity and ensure the integrity of your requests using HMAC-SHA256 signature authentication.
+                </p>
+              </div>
+
+              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg mb-6">
+                <h3 className="text-lg font-semibold text-yellow-900 mb-2">⚠️ Important Security Note</h3>
+                <p className="text-yellow-800">
+                  Never expose your API secret key in client-side code, mobile apps, or public repositories. 
+                  Always generate signatures on your backend server. The secret key should only be stored securely 
+                  on your server.
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-start space-x-4 mb-4">
+                    <div className="bg-blue-100 p-3 rounded-lg">
+                      <KeyIcon className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">X-API-Key</h3>
+                      <p className="text-gray-600 mb-3">
+                        Your unique merchant API key. This identifies your merchant account to PayCoreX.
+                      </p>
+                      <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                        <code className="text-sm font-mono text-gray-800">X-API-Key: your-api-key-here</code>
+                      </div>
+                      <div className="space-y-2 text-sm text-gray-700">
+                        <p><strong>Type:</strong> String</p>
+                        <p><strong>Required:</strong> Yes (for all authenticated endpoints)</p>
+                        <p><strong>Location:</strong> HTTP Header</p>
+                        <p><strong>Example:</strong> <code className="bg-gray-100 px-2 py-1 rounded">y5XQpcXhxzzGfk5ND3b3iU0Np7HaZWYw_Z4w2b42h64</code></p>
+                        <p className="mt-2"><strong>Where to find it:</strong> Available in your merchant dashboard under "API Keys" section after registration.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-start space-x-4 mb-4">
+                    <div className="bg-green-100 p-3 rounded-lg">
+                      <ShieldCheckIcon className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">X-Signature</h3>
+                      <p className="text-gray-600 mb-3">
+                        The HMAC-SHA256 signature of your request. This is generated by combining the timestamp 
+                        and request body, then signing it with your secret key.
+                      </p>
+                      <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                        <code className="text-sm font-mono text-gray-800">X-Signature: hmac-sha256-hex-signature</code>
+                      </div>
+                      <div className="space-y-2 text-sm text-gray-700">
+                        <p><strong>Type:</strong> String (hexadecimal)</p>
+                        <p><strong>Required:</strong> Yes (for all authenticated endpoints)</p>
+                        <p><strong>Location:</strong> HTTP Header</p>
+                        <p><strong>Algorithm:</strong> HMAC-SHA256</p>
+                        <p><strong>Length:</strong> 64 characters (256 bits)</p>
+                        <div className="bg-blue-50 p-4 rounded-lg mt-3">
+                          <p className="font-semibold text-blue-900 mb-2">How it's generated:</p>
+                          <ol className="list-decimal list-inside space-y-1 text-blue-800">
+                            <li>Get current Unix timestamp in seconds</li>
+                            <li>Get request body as string (JSON stringified)</li>
+                            <li>Concatenate: <code className="bg-blue-100 px-1 rounded">timestamp + body</code></li>
+                            <li>Sign with HMAC-SHA256 using your secret key</li>
+                            <li>Convert to hexadecimal string</li>
+                          </ol>
+                        </div>
+                        <div className="bg-gray-900 p-4 rounded-lg mt-3">
+                          <pre className="text-xs text-gray-100">
+{`Formula:
+HMAC-SHA256(secret_key, timestamp + request_body)
+
+Example:
+secret = "your-secret-key"
+timestamp = "1705060800"
+body = '{"amount":1000,"method":"wallet"}'
+payload = "1705060800{\"amount\":1000,\"method\":\"wallet\"}"
+signature = HMAC-SHA256(secret, payload)`}
+                          </pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-start space-x-4 mb-4">
+                    <div className="bg-purple-100 p-3 rounded-lg">
+                      <DocumentTextIcon className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">X-Timestamp</h3>
+                      <p className="text-gray-600 mb-3">
+                        Unix timestamp (seconds since January 1, 1970 UTC) when the request is made. 
+                        This prevents replay attacks and ensures request freshness.
+                      </p>
+                      <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                        <code className="text-sm font-mono text-gray-800">X-Timestamp: 1705060800</code>
+                      </div>
+                      <div className="space-y-2 text-sm text-gray-700">
+                        <p><strong>Type:</strong> String (numeric)</p>
+                        <p><strong>Required:</strong> Yes (for all authenticated endpoints)</p>
+                        <p><strong>Location:</strong> HTTP Header</p>
+                        <p><strong>Format:</strong> Unix timestamp in seconds (not milliseconds)</p>
+                        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg mt-3">
+                          <p className="font-semibold text-yellow-900 mb-2">⚠️ Important:</p>
+                          <ul className="list-disc list-inside space-y-1 text-yellow-800 text-sm">
+                            <li>Must be current time (within 5 minutes of server time)</li>
+                            <li>Use seconds, not milliseconds</li>
+                            <li>Must match the timestamp used in signature generation</li>
+                            <li>Old timestamps will be rejected to prevent replay attacks</li>
+                          </ul>
+                        </div>
+                        <div className="bg-gray-900 p-4 rounded-lg mt-3">
+                          <pre className="text-xs text-gray-100">
+{`Examples by language:
+
+Python:
+import time
+timestamp = str(int(time.time()))
+
+Node.js:
+const timestamp = Math.floor(Date.now() / 1000).toString();
+
+PHP:
+$timestamp = (string) time();
+
+Java:
+long timestamp = System.currentTimeMillis() / 1000;
+String timestampStr = String.valueOf(timestamp);`}
+                          </pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-8">
+                <h3 className="text-lg font-semibold text-blue-900 mb-3">Complete Request Example</h3>
+                <p className="text-blue-800 mb-4">Here's how all three headers work together in a real API request:</p>
+                <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
+                  <pre className="text-sm text-gray-100">
+{`POST /v1/payments/create HTTP/1.1
+Host: api.paycorex.dev
+Content-Type: application/json
+X-API-Key: y5XQpcXhxzzGfk5ND3b3iU0Np7HaZWYw_Z4w2b42h64
+X-Signature: a1b2c3d4e5f6...64-char-hex-string
+X-Timestamp: 1705060800
+
+{
+  "amount": 1000.00,
+  "method": "wallet",
+  "user_id": "user-123",
+  "reference_id": "order-456"
+}`}
+                  </pre>
+                </div>
+                <div className="mt-4 p-4 bg-white rounded-lg">
+                  <p className="text-sm text-gray-700 mb-2"><strong>Step-by-step process:</strong></p>
+                  <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700">
+                    <li>Prepare your request body (JSON)</li>
+                    <li>Get current Unix timestamp: <code className="bg-gray-100 px-1 rounded">1705060800</code></li>
+                    <li>Stringify request body: <code className="bg-gray-100 px-1 rounded">{'{'}"amount":1000,"method":"wallet"{'}'}</code></li>
+                    <li>Create payload: <code className="bg-gray-100 px-1 rounded">timestamp + body</code></li>
+                    <li>Generate signature: <code className="bg-gray-100 px-1 rounded">HMAC-SHA256(secret, payload)</code></li>
+                    <li>Add all three headers to your HTTP request</li>
+                    <li>Send the request</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 mt-6">
+                <h3 className="text-lg font-semibold text-red-900 mb-3">Common Errors & Solutions</h3>
+                <div className="space-y-4 text-sm">
                   <div>
-                    <code className="text-sm font-mono font-semibold">X-API-Key</code>
-                    <p className="text-gray-600 text-sm">Your merchant API key</p>
+                    <p className="font-semibold text-red-900 mb-1">❌ Error: "Missing authentication headers"</p>
+                    <p className="text-red-800">Solution: Ensure all three headers (X-API-Key, X-Signature, X-Timestamp) are present.</p>
                   </div>
                   <div>
-                    <code className="text-sm font-mono font-semibold">X-Signature</code>
-                    <p className="text-gray-600 text-sm">HMAC-SHA256 signature</p>
+                    <p className="font-semibold text-red-900 mb-1">❌ Error: "Invalid signature"</p>
+                    <p className="text-red-800">Solution: Verify that the timestamp and body used in signature match the headers exactly. Check for extra spaces or encoding issues.</p>
                   </div>
                   <div>
-                    <code className="text-sm font-mono font-semibold">X-Timestamp</code>
-                    <p className="text-gray-600 text-sm">Unix timestamp in seconds</p>
+                    <p className="font-semibold text-red-900 mb-1">❌ Error: "Invalid API key"</p>
+                    <p className="text-red-800">Solution: Verify your API key is correct and your merchant account is active.</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-red-900 mb-1">❌ Error: "Timestamp too old"</p>
+                    <p className="text-red-800">Solution: Generate a fresh timestamp. Timestamps older than 5 minutes are rejected.</p>
                   </div>
                 </div>
               </div>

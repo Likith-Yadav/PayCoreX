@@ -28,7 +28,7 @@ npm install
 
 3. Create environment file:
 ```bash
-echo "VITE_API_URL=https://api.buildforu.pw" > .env
+echo "VITE_API_URL=https://api.paycorex.dev" > .env
 ```
 
 4. Run development server:
@@ -70,7 +70,7 @@ server {
     }
     
     location /api {
-        proxy_pass https://api.buildforu.pw;
+        proxy_pass https://api.paycorex.dev;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }

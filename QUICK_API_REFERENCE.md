@@ -2,7 +2,7 @@
 
 ## 🔗 Base URL
 ```
-https://api.buildforu.pw
+https://api.paycorex.dev
 ```
 
 ---
@@ -153,7 +153,7 @@ Check `X-Webhook-Signature` header matches your calculated signature.
 
 ```bash
 # 1. Register
-curl -X POST https://api.buildforu.pw/v1/merchants/register \
+curl -X POST https://api.paycorex.dev/v1/merchants/register \
   -H "Content-Type: application/json" \
   -d '{"name":"My Store","email":"merchant@example.com"}'
 
@@ -164,7 +164,7 @@ TIMESTAMP=$(date +%s)
 BODY='{"amount":1000,"method":"wallet","user_id":"user-123"}'
 SIGNATURE=$(echo -n "${TIMESTAMP}${BODY}" | openssl dgst -sha256 -hmac "${SECRET}" | sed 's/^.* //')
 
-curl -X POST https://api.buildforu.pw/v1/payments/create \
+curl -X POST https://api.paycorex.dev/v1/payments/create \
   -H "Content-Type: application/json" \
   -H "X-API-Key: ${API_KEY}" \
   -H "X-Signature: ${SIGNATURE}" \

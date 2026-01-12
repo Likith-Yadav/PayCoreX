@@ -6,7 +6,7 @@ import json
 import requests
 import uuid
 
-BASE_URL = "https://api.buildforu.pw"
+BASE_URL = "https://api.paycorex.dev"
 API_KEY = "y5XQpcXhxzzGfk5ND3b3iU0Np7HaZWYw_Z4w2b42h64"
 SECRET_KEY = "-9iJc1OZXohB4gf3lanGob4M9ypMLFH4FeiyYCEPfKwNIa-dBjrs7Z_XiRqMD3paMgqCVYxH5k3oDDH1saikFQ"
 

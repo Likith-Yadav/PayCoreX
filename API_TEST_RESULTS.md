@@ -58,7 +58,7 @@ import requests
 
 API_KEY = "your-api-key"
 SECRET_KEY = "your-secret-key"
-BASE_URL = "https://api.buildforu.pw"
+BASE_URL = "https://api.paycorex.dev"
 
 def generate_signature(secret, timestamp, body):
     payload = f"{timestamp}{body}"

@@ -64,7 +64,7 @@ X-Timestamp: unix-timestamp
 
 ### 3. Payment Page (Public)
 
-**URL:** `https://api.buildforu.pw/v1/payments/{payment_id}/page`
+**URL:** `https://api.paycorex.dev/v1/payments/{payment_id}/page`
 
 This page shows:
 - QR code for UPI payment
@@ -81,7 +81,7 @@ async function getPaymentMethods() {
   const body = "";
   const signature = await generateHMACSignature(SECRET_KEY, timestamp, body);
   
-  const response = await fetch('https://api.buildforu.pw/v1/payments/methods', {
+  const response = await fetch('https://api.paycorex.dev/v1/payments/methods', {
     method: 'GET',
     headers: {
       'X-API-Key': API_KEY,
@@ -113,7 +113,7 @@ async function createPayment(amount, method, userId, referenceId) {
   
   const signature = await generateHMACSignature(SECRET_KEY, timestamp, body);
   
-  const response = await fetch('https://api.buildforu.pw/v1/payments/create', {
+  const response = await fetch('https://api.paycorex.dev/v1/payments/create', {
     method: 'POST',
     headers: {
       'X-API-Key': API_KEY,
@@ -128,7 +128,7 @@ async function createPayment(amount, method, userId, referenceId) {
   
   if (response.ok) {
     // Redirect to payment page
-    window.location.href = `https://api.buildforu.pw${payment.payment_page_url}`;
+    window.location.href = `https://api.paycorex.dev${payment.payment_page_url}`;
   } else {
     alert('Payment creation failed: ' + payment.error);
   }
@@ -184,7 +184,7 @@ async function generateHMACSignature(secret, timestamp, body) {
     <script>
         const API_KEY = 'your-api-key';
         const SECRET_KEY = 'your-secret-key';
-        const BASE_URL = 'https://api.buildforu.pw';
+        const BASE_URL = 'https://api.paycorex.dev';
         
         // Load payment methods on page load
         window.addEventListener('DOMContentLoaded', async () => {

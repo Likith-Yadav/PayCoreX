@@ -2,7 +2,7 @@
 
 ## 🌐 Base URL
 
-**Production API**: `https://api.buildforu.pw`
+**Production API**: `https://api.paycorex.dev`
 
 ---
 
@@ -12,7 +12,7 @@ First, you need to register your business/application to get API credentials.
 
 ### Endpoint
 ```
-POST https://api.buildforu.pw/v1/merchants/register
+POST https://api.paycorex.dev/v1/merchants/register
 ```
 
 ### Request Body
@@ -25,7 +25,7 @@ POST https://api.buildforu.pw/v1/merchants/register
 
 ### Example (cURL)
 ```bash
-curl -X POST https://api.buildforu.pw/v1/merchants/register \
+curl -X POST https://api.paycorex.dev/v1/merchants/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "My E-commerce Store",
@@ -131,7 +131,7 @@ Once you have your API credentials, you can start processing payments.
 
 ### Endpoint
 ```
-POST https://api.buildforu.pw/v1/payments/create
+POST https://api.paycorex.dev/v1/payments/create
 ```
 
 ### Request Body
@@ -168,7 +168,7 @@ BODY='{"amount":1000,"method":"wallet","user_id":"user-123"}'
 SIGNATURE=$(echo -n "${TIMESTAMP}${BODY}" | openssl dgst -sha256 -hmac "${SECRET}" | sed 's/^.* //')
 
 # Make request
-curl -X POST https://api.buildforu.pw/v1/payments/create \
+curl -X POST https://api.paycorex.dev/v1/payments/create \
   -H "Content-Type: application/json" \
   -H "X-API-Key: ${API_KEY}" \
   -H "X-Signature: ${SIGNATURE}" \
@@ -214,12 +214,12 @@ curl -X POST https://api.buildforu.pw/v1/payments/create \
 
 ### Endpoint
 ```
-GET https://api.buildforu.pw/v1/payments/{payment_id}
+GET https://api.paycorex.dev/v1/payments/{payment_id}
 ```
 
 ### Example
 ```bash
-curl -X GET https://api.buildforu.pw/v1/payments/payment-uuid-here \
+curl -X GET https://api.paycorex.dev/v1/payments/payment-uuid-here \
   -H "X-API-Key: ${API_KEY}" \
   -H "X-Signature: ${SIGNATURE}" \
   -H "X-Timestamp: ${TIMESTAMP}"
@@ -231,7 +231,7 @@ curl -X GET https://api.buildforu.pw/v1/payments/payment-uuid-here \
 
 ### Endpoint
 ```
-POST https://api.buildforu.pw/v1/payments/refund
+POST https://api.paycorex.dev/v1/payments/refund
 ```
 
 ### Request Body
@@ -251,13 +251,13 @@ POST https://api.buildforu.pw/v1/payments/refund
 
 ### Create Wallet
 ```
-POST https://api.buildforu.pw/v1/wallet/create
+POST https://api.paycorex.dev/v1/wallet/create
 Body: {"user_id": "user-123"}
 ```
 
 ### Top Up Wallet
 ```
-POST https://api.buildforu.pw/v1/wallet/topup
+POST https://api.paycorex.dev/v1/wallet/topup
 Body: {
   "user_id": "user-123",
   "amount": 5000.00,
@@ -267,7 +267,7 @@ Body: {
 
 ### Get Balance
 ```
-GET https://api.buildforu.pw/v1/wallet/balance?user_id=user-123
+GET https://api.paycorex.dev/v1/wallet/balance?user_id=user-123
 ```
 
 ---
@@ -278,7 +278,7 @@ PayCoreX automatically sends webhooks for payment events.
 
 ### Setup Webhook Endpoint
 ```
-POST https://api.buildforu.pw/v1/webhooks/provider
+POST https://api.paycorex.dev/v1/webhooks/provider
 Body: {
   "url": "https://your-domain.com/webhook",
   "events": ["payment.success", "payment.failed", "refund.success"]
@@ -307,17 +307,17 @@ Body: {
 
 ### Get Statistics
 ```
-GET https://api.buildforu.pw/v1/dashboard/stats
+GET https://api.paycorex.dev/v1/dashboard/stats
 ```
 
 ### Get Payments List
 ```
-GET https://api.buildforu.pw/v1/dashboard/payments?status=success&limit=50
+GET https://api.paycorex.dev/v1/dashboard/payments?status=success&limit=50
 ```
 
 ### Get Ledger Entries
 ```
-GET https://api.buildforu.pw/v1/dashboard/ledgers
+GET https://api.paycorex.dev/v1/dashboard/ledgers
 ```
 
 ---
@@ -332,7 +332,7 @@ import time
 import json
 
 class PayCoreXClient:
-    def __init__(self, api_key, secret, base_url="https://api.buildforu.pw"):
+    def __init__(self, api_key, secret, base_url="https://api.paycorex.dev"):
         self.api_key = api_key
         self.secret = secret
         self.base_url = base_url
@@ -415,9 +415,9 @@ print(f"Payment ID: {payment['id']}")
 
 ## 📞 Support
 
-- **API Base URL**: `https://api.buildforu.pw`
+- **API Base URL**: `https://api.paycorex.dev`
 - **Documentation**: See `ARCHITECTURE.md` for detailed system architecture
-- **Health Check**: `GET https://api.buildforu.pw/` (no auth required)
+- **Health Check**: `GET https://api.paycorex.dev/` (no auth required)
 
 ---
 
