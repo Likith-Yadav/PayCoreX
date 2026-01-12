@@ -55,7 +55,7 @@ def stats(request):
             'total_volume': float(total_volume),
             'total_transactions': total_transactions,
             'successful_transactions': successful_transactions,
-            'success_rate': round(success_rate, 2),
+        'success_rate': round(success_rate, 2),
             'total_refunds': float(total_refunds),
             'net_volume': float(total_volume - total_refunds),
         },
@@ -165,13 +165,13 @@ def ledgers(request):
         'limit': limit,
         'results': [
             {
-                'id': str(l.id),
+        'id': str(l.id),
                 'debit': float(l.debit) if l.debit else None,
                 'credit': float(l.credit) if l.credit else None,
                 'balance': float(l.balance),
-                'reference_type': l.reference_type,
-                'reference_id': str(l.reference_id) if l.reference_id else None,
-                'description': l.description,
+        'reference_type': l.reference_type,
+        'reference_id': str(l.reference_id) if l.reference_id else None,
+        'description': l.description,
                 'created_at': l.created_at.isoformat(),
             }
             for l in ledgers
