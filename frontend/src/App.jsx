@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import APIKeys from './pages/APIKeys'
+import PaymentSettings from './pages/PaymentSettings'
 import Transactions from './pages/Transactions'
 import Analytics from './pages/Analytics'
 import Documentation from './pages/Documentation'
@@ -46,6 +47,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <Layout>
               <APIKeys />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment-settings"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <PaymentSettings />
             </Layout>
           </ProtectedRoute>
         }

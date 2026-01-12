@@ -6,6 +6,8 @@ from django.utils import timezone
 from datetime import timedelta
 from payments.models import Payment, Refund
 from ledger.models import Ledger
+from merchants.models import MerchantPaymentConfig
+from merchants.serializers import MerchantPaymentConfigSerializer
 
 
 @api_view(['GET'])
@@ -177,3 +179,49 @@ def ledgers(request):
             for l in ledgers
         ]
     })
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def payment_configs(request):
+    """Get or create payment configurations"""
+    merchant = request.user.merchant
+    if not merchant:
+        return Response({'error': 'No merchant account'}, status=400)
+    
+    if request.method == 'GET':
+        configs = MerchantPaymentConfig.objects.filter(merchant=merchant)
+        serializer = MerchantPaymentConfigSerializer(configs, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = MerchantPaymentConfigSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(merchant=merchant)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def payment_config_detail(request, config_id):
+    """Update or delete payment configuration"""
+    merchant = request.user.merchant
+    if not merchant:
+        return Response({'error': 'No merchant account'}, status=400)
+    
+    try:
+        config = MerchantPaymentConfig.objects.get(id=config_id, merchant=merchant)
+    except MerchantPaymentConfig.DoesNotExist:
+        return Response({'error': 'Payment configuration not found'}, status=404)
+    
+    if request.method == 'PUT':
+        serializer = MerchantPaymentConfigSerializer(config, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+    
+    elif request.method == 'DELETE':
+        config.delete()
+        return Response({'message': 'Payment configuration deleted'}, status=200)
