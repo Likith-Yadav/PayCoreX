@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from core.views import health_check
+import core.admin  # Import to apply admin customization
 
 urlpatterns = [
     path('', health_check, name='health_check'),
