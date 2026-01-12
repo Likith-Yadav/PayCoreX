@@ -30,9 +30,17 @@ class MerchantPaymentConfigSerializer(serializers.ModelSerializer):
             'bank_name', 'branch_name', 'upi_id',
             'provider_key', 'provider_secret', 'provider_merchant_id',
             'provider_webhook_secret', 'metadata', 'is_verified',
-            'verified_at', 'created_at', 'updated_at'
+            'verified_at', 'verified_by', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'is_verified', 'verified_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'is_verified', 'verified_at', 'verified_by']
+    
+    def to_representation(self, instance):
+        """Add verified_by username to response"""
+        data = super().to_representation(instance)
+        if instance.verified_by:
+            data['verified_by_username'] = instance.verified_by.username
+            data['verified_by_email'] = instance.verified_by.email
+        return data
     
     def validate(self, attrs):
         config_type = attrs.get('config_type')

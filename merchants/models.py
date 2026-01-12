@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 
 class Merchant(models.Model):
@@ -66,6 +67,14 @@ class MerchantPaymentConfig(models.Model):
     # Verification
     is_verified = models.BooleanField(default=False)
     verified_at = models.DateTimeField(null=True, blank=True)
+    verified_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='verified_payment_configs',
+        help_text='Admin user who verified this payment configuration'
+    )
     
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)

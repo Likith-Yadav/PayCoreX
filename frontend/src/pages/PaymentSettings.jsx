@@ -271,14 +271,14 @@ export default function PaymentSettings() {
                           </span>
                         )}
                         {config.is_verified ? (
-                          <span className="flex items-center space-x-1 text-green-600 text-xs">
+                          <span className="flex items-center space-x-1 text-green-600 text-xs" title={config.verified_by_username ? `Verified by ${config.verified_by_username}` : 'Verified'}>
                             <CheckCircleIcon className="h-4 w-4" />
-                            <span>Verified</span>
+                            <span>Verified{config.verified_by_username ? ` by ${config.verified_by_username}` : ''}</span>
                           </span>
                         ) : (
-                          <span className="flex items-center space-x-1 text-yellow-600 text-xs">
+                          <span className="flex items-center space-x-1 text-yellow-600 text-xs" title="Awaiting admin verification">
                             <XCircleIcon className="h-4 w-4" />
-                            <span>Pending Verification</span>
+                            <span>Pending Admin Verification</span>
                           </span>
                         )}
                       </div>
