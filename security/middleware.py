@@ -9,6 +9,8 @@ from merchants.models import Merchant
 class HMACAuthMiddleware(MiddlewareMixin):
     EXEMPT_PATHS = [
         '/v1/merchants/register',
+        '/api/auth/',
+        '/api/dashboard/',
         '/admin/',
         '/',
         '/favicon.ico',

@@ -1,0 +1,30 @@
+[Unit]
+Description=PayCoreX Gunicorn Application Server
+After=network.target postgresql.service redis.service
+
+[Service]
+Type=notify
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/PayCoreX
+Environment="PATH=/home/ubuntu/.local/bin:/home/ubuntu/PayCoreX/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="DJANGO_SETTINGS_MODULE=core.settings"
+ExecStart=/home/ubuntu/PayCoreX/start-gunicorn.sh \
+    --workers 3 \
+    --bind 127.0.0.1:8000 \
+    --timeout 120 \
+    --access-logfile /home/ubuntu/PayCoreX/logs/gunicorn-access.log \
+    --error-logfile /home/ubuntu/PayCoreX/logs/gunicorn-error.log \
+    --log-level info \
+    --pid /home/ubuntu/PayCoreX/gunicorn.pid \
+    core.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+

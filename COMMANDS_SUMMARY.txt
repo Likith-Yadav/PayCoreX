@@ -1,0 +1,175 @@
+================================================================================
+                    PAYCOREX DEPLOYMENT COMMANDS SUMMARY
+================================================================================
+
+✅ SETUP COMPLETE: Database changed from Render to localhost
+✅ Services configured: Gunicorn, Celery, Nginx
+✅ Auto-restart enabled for SSH sessions
+
+================================================================================
+                        QUICK COMMAND REFERENCE
+================================================================================
+
+📍 Location: /home/ubuntu/PayCoreX
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. SERVICE MANAGEMENT (RECOMMENDED - All-in-One)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd /home/ubuntu/PayCoreX
+
+# Start all services (Gunicorn, Celery, Nginx, PostgreSQL, Redis)
+./manage-services.sh start
+
+# Stop all services
+./manage-services.sh stop
+
+# Restart all services
+./manage-services.sh restart
+
+# Check status of all services
+./manage-services.sh status
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. INDIVIDUAL SERVICE COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GUNICORN (Django Backend):
+  Start:    sudo systemctl start paycorex-gunicorn
+  Stop:     sudo systemctl stop paycorex-gunicorn
+  Restart:  sudo systemctl restart paycorex-gunicorn
+  Status:   sudo systemctl status paycorex-gunicorn
+
+CELERY (Background Worker):
+  Start:    sudo systemctl start paycorex-celery
+  Stop:     sudo systemctl stop paycorex-celery
+  Restart:  sudo systemctl restart paycorex-celery
+  Status:   sudo systemctl status paycorex-celery
+
+NGINX (Web Server):
+  Start:    sudo systemctl start nginx
+  Stop:     sudo systemctl stop nginx
+  Restart:  sudo systemctl restart nginx
+  Reload:   sudo systemctl reload nginx
+  Status:   sudo systemctl status nginx
+
+POSTGRESQL (Database):
+  Start:    sudo systemctl start postgresql
+  Stop:     sudo systemctl stop postgresql
+  Restart:  sudo systemctl restart postgresql
+  Status:   sudo systemctl status postgresql
+
+REDIS (Cache/Queue):
+  Start:    sudo systemctl start redis
+  Stop:     sudo systemctl stop redis
+  Restart:  sudo systemctl restart redis
+  Status:   sudo systemctl status redis
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. ENABLE AUTO-START ON BOOT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+sudo systemctl enable paycorex-gunicorn
+sudo systemctl enable paycorex-celery
+sudo systemctl enable postgresql
+sudo systemctl enable redis
+sudo systemctl enable nginx
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. VIEW LOGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Gunicorn logs
+tail -f /home/ubuntu/PayCoreX/logs/gunicorn-error.log
+tail -f /home/ubuntu/PayCoreX/logs/gunicorn-access.log
+
+# Celery logs
+tail -f /home/ubuntu/PayCoreX/logs/celery-worker.log
+
+# Nginx logs
+sudo tail -f /var/log/nginx/paycorex-error.log
+sudo tail -f /var/log/nginx/paycorex-access.log
+
+# System logs (all services)
+sudo journalctl -u paycorex-gunicorn -f
+sudo journalctl -u paycorex-celery -f
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. INITIAL SETUP (ONE-TIME - Run if not done yet)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Install system packages
+sudo apt update
+sudo apt install -y python3-pip python3-venv postgresql postgresql-contrib redis-server nginx
+
+# Install Python packages
+cd /home/ubuntu/PayCoreX
+python3 -m pip install --user -r requirements.txt
+
+# Create database
+sudo -u postgres psql -c "CREATE DATABASE paycorex;"
+
+# Update .env with your database password if needed
+nano /home/ubuntu/PayCoreX/.env
+
+# Run migrations
+python3 manage.py migrate
+python3 manage.py collectstatic --noinput
+
+# Install and setup services
+sudo ./setup-deployment.sh
+
+# Start all services
+./manage-services.sh start
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Check if services are running
+./manage-services.sh status
+
+# Check if port 8000 is in use
+sudo netstat -tulpn | grep 8000
+
+# Test database connection
+sudo -u postgres psql paycorex -c "SELECT version();"
+
+# Test Redis connection
+redis-cli ping
+
+# Test Nginx configuration
+sudo nginx -t
+
+# View detailed service errors
+sudo journalctl -u paycorex-gunicorn -n 50
+sudo journalctl -u paycorex-celery -n 50
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. FILE LOCATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Project Directory:    /home/ubuntu/PayCoreX
+Environment File:     /home/ubuntu/PayCoreX/.env
+Service Files:        /etc/systemd/system/paycorex-*.service
+Nginx Config:         /etc/nginx/sites-available/paycorex
+Application Logs:     /home/ubuntu/PayCoreX/logs/
+Nginx Logs:           /var/log/nginx/paycorex-*.log
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. PORTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nginx (HTTP):      Port 80
+Gunicorn:          Port 8000 (internal, proxied by Nginx)
+PostgreSQL:        Port 5432
+Redis:             Port 6379
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For more detailed information, see:
+- QUICK_START.md - Quick reference guide
+- DEPLOYMENT_COMMANDS.md - Complete command reference
+
+================================================================================
+

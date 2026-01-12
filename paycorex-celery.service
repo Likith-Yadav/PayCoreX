@@ -1,0 +1,22 @@
+[Unit]
+Description=PayCoreX Celery Worker
+After=network.target redis.service postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/PayCoreX
+Environment="PATH=/home/ubuntu/.local/bin:/home/ubuntu/PayCoreX/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="DJANGO_SETTINGS_MODULE=core.settings"
+ExecStart=/home/ubuntu/PayCoreX/start-celery.sh -A core worker \
+    --loglevel=info \
+    --logfile=/home/ubuntu/PayCoreX/logs/celery-worker.log \
+    --pidfile=/home/ubuntu/PayCoreX/celery-worker.pid
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
