@@ -1098,11 +1098,9 @@ const headers = {
   // Show loading state
   if (loading) {
     return (
-      <PublicLayout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      </PublicLayout>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
     )
   }
 
