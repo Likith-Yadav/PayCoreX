@@ -54,10 +54,33 @@ export default function PaymentSettings() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      // Clean up form data - remove empty strings for optional fields
+      const cleanedData = { ...formData }
+      
+      // Remove empty strings for fields that aren't relevant to the selected type
+      if (cleanedData.config_type !== 'bank_account') {
+        cleanedData.account_holder_name = cleanedData.account_holder_name || null
+        cleanedData.account_number = cleanedData.account_number || null
+        cleanedData.ifsc_code = cleanedData.ifsc_code || null
+        cleanedData.bank_name = cleanedData.bank_name || null
+        cleanedData.branch_name = cleanedData.branch_name || null
+      }
+      
+      if (cleanedData.config_type !== 'upi') {
+        cleanedData.upi_id = cleanedData.upi_id || null
+      }
+      
+      if (!['razorpay', 'stripe', 'phonepe', 'paytm', 'other'].includes(cleanedData.config_type)) {
+        cleanedData.provider_key = cleanedData.provider_key || null
+        cleanedData.provider_secret = cleanedData.provider_secret || null
+        cleanedData.provider_merchant_id = cleanedData.provider_merchant_id || null
+        cleanedData.provider_webhook_secret = cleanedData.provider_webhook_secret || null
+      }
+      
       if (editingConfig) {
-        await api.put(`/api/dashboard/payment-configs/${editingConfig.id}`, formData)
+        await api.put(`/api/dashboard/payment-configs/${editingConfig.id}`, cleanedData)
       } else {
-        await api.post('/api/dashboard/payment-configs', formData)
+        await api.post('/api/dashboard/payment-configs', cleanedData)
       }
       setShowForm(false)
       setEditingConfig(null)
@@ -65,7 +88,40 @@ export default function PaymentSettings() {
       loadConfigs()
     } catch (error) {
       console.error('Failed to save payment config:', error)
-      alert(error.response?.data?.error || 'Failed to save payment configuration')
+      console.error('Error response:', error.response?.data)
+      
+      // Handle validation errors
+      const errorData = error.response?.data
+      let errorMessage = 'Failed to save payment configuration'
+      
+      if (errorData) {
+        // If it's a dictionary of errors (Django serializer errors)
+        if (typeof errorData === 'object' && !errorData.error) {
+          const errorMessages = []
+          for (const [field, messages] of Object.entries(errorData)) {
+            if (Array.isArray(messages)) {
+              errorMessages.push(`${field}: ${messages.join(', ')}`)
+            } else if (typeof messages === 'string') {
+              errorMessages.push(`${field}: ${messages}`)
+            } else {
+              errorMessages.push(`${field}: ${JSON.stringify(messages)}`)
+            }
+          }
+          errorMessage = errorMessages.length > 0 
+            ? errorMessages.join('\n') 
+            : 'Validation failed. Please check all required fields.'
+        } else if (errorData.error) {
+          errorMessage = errorData.error
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData
+        } else if (Array.isArray(errorData)) {
+          errorMessage = errorData.join('\n')
+        }
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     }
   }
 

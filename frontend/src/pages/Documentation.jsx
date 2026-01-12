@@ -1214,6 +1214,6 @@ const headers = {
           </div>
         </div>
       </div>
-    </div>
   )
 }
+

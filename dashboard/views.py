@@ -197,8 +197,11 @@ def payment_configs(request):
     elif request.method == 'POST':
         serializer = MerchantPaymentConfigSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(merchant=merchant)
-            return Response(serializer.data, status=201)
+            try:
+                serializer.save(merchant=merchant)
+                return Response(serializer.data, status=201)
+            except Exception as e:
+                return Response({'error': str(e)}, status=400)
         return Response(serializer.errors, status=400)
 
 
